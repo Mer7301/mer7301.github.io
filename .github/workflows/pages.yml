@@ -47,9 +47,53 @@ jobs:
           path: scan-summary.json
           retention-days: 7
 
+  product-docs:
+    # The Belfry manual (Sphinx, from belfry docs/docsite) and the operator
+    # reference (MkDocs, from belfry-operator docs/), built from their main
+    # branches and published under /docs/belfry/ and /docs/operator/
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: belfry-project/belfry
+          path: belfry
+          persist-credentials: false
+
+      - uses: actions/checkout@v4
+        with:
+          repository: belfry-project/belfry-operator
+          path: belfry-operator
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build the Belfry manual
+        working-directory: belfry
+        run: |
+          python -m venv "$RUNNER_TEMP/sphinx"
+          "$RUNNER_TEMP/sphinx/bin/pip" install -r docs/docsite/requirements.in -c docs/docsite/requirements.txt
+          "$RUNNER_TEMP/sphinx/bin/python" docs/docsite/download-json.py
+          "$RUNNER_TEMP/sphinx/bin/sphinx-build" -T -E -W -n --keep-going -j auto -c docs/docsite -b html docs/docsite/rst ../product-docs/belfry
+
+      - name: Build the operator reference
+        working-directory: belfry-operator
+        run: |
+          python -m venv "$RUNNER_TEMP/mkdocs"
+          "$RUNNER_TEMP/mkdocs/bin/pip" install -r docs/requirements.txt
+          "$RUNNER_TEMP/mkdocs/bin/mkdocs" build --strict -d ../product-docs/operator
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: product-docs
+          path: product-docs
+          retention-days: 7
+
   build:
-    needs: scan
-    # Publish the page even if the scan failed; it then has no vulnerability section
+    needs: [scan, product-docs]
+    # Publish the site even if the scan or the product docs failed; it then has
+    # no vulnerability section, or no /docs/belfry/ and /docs/operator/
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
@@ -70,6 +114,20 @@ jobs:
         run: |
           python -m pip install pyyaml
           python build.py
+
+      - name: Build the guides
+        env:
+          NO_MKDOCS_2_WARNING: "1"
+        run: |
+          python -m pip install -r requirements-docs.txt
+          mkdocs build --strict
+
+      # After the guides: mkdocs build empties _site/docs first
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: product-docs
+          path: _site/docs
 
       - uses: actions/upload-pages-artifact@v3
         with:

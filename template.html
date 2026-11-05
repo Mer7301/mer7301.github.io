@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Belfry vs AWX</title>
+<link rel="icon" href="docs/assets/belfry.png">
 <meta name="description" content="What Belfry changes compared with the last AWX release: component versions, support status and fixes, with links to every change.">
 <style>
   :root {
@@ -50,13 +51,25 @@
   ul.changes p.links { margin-top: 8px; font-size: 0.9rem; display: flex; flex-wrap: wrap; gap: 4px 12px; }
   .note { color: var(--muted); font-size: 0.9rem; }
   .detail { display: block; color: var(--muted); font-size: 0.82rem; font-weight: 400; margin-top: 2px; overflow-wrap: anywhere; }
+  nav.top { display: flex; flex-wrap: wrap; gap: 4px 18px; align-items: center; margin: 0 0 28px; font-size: 0.95rem; }
+  nav.top .brand { display: flex; align-items: center; gap: 8px; font-weight: 650; color: var(--text); text-decoration: none; margin-right: auto; }
+  nav.top .brand img { width: 28px; height: 28px; border-radius: 6px; }
+  .cta { margin: 16px 0 0; }
   footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.88rem; }
 </style>
 </head>
 <body>
 <main>
+  <nav class="top">
+    <a class="brand" href="./"><img src="docs/assets/belfry.svg" alt="">Belfry</a>
+    <a href="docs/">Documentation</a>
+    <a href="docs/install/">Install</a>
+    <a href="docs/migrate/">Migrate from AWX</a>
+    <a href="https://github.com/belfry-project">GitHub</a>
+  </nav>
   <h1>Belfry vs AWX</h1>
   <p class="lead">What Belfry changes compared with the last AWX release: AWX 24.6.1 and awx-operator 2.19.1, both from July 2024. Every change links to the pull request that made it.</p>
+  <p class="lead cta">Running AWX? <a href="docs/migrate/">Migrate to Belfry in place</a>, or read the <a href="docs/">documentation</a>.</p>
 
   <div class="stats">
     <div class="stat"><div class="value">{{ eol_upstream }}</div><div class="label">end-of-life components in AWX 24.6.1</div></div>
@@ -66,7 +79,7 @@
     <div class="stat"><div class="value">{{ belfry_pulls }}</div><div class="label">merged Belfry pull requests, with {{ belfry_commits }} commits across {{ belfry_repos }} repositories</div></div>
   </div>
 
-  <h2>Component versions</h2>
+  <h2 id="versions">Component versions</h2>
   <div class="table-wrap">
     <table>
       <thead><tr><th scope="col">Component</th><th scope="col">AWX 24.6.1</th><th scope="col">Belfry (main)</th></tr></thead>
@@ -79,7 +92,7 @@
 
 {{ vulnerabilities }}
 
-  <h2>Changes</h2>
+  <h2 id="changes">Changes</h2>
 {{ changes }}
 
   <footer>

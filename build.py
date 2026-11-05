@@ -256,7 +256,7 @@ def vulnerability_section():
             f'<tr><th scope="row">{html.escape(item["component"])}<span class="detail">{html.escape(item["awx"]["image"])}<br>'
             f'{html.escape(item["belfry"]["image"])}</span></th>{cell(item["awx"])}{cell(item["belfry"])}</tr>'
         )
-    section = f"""<h2>Known vulnerabilities</h2>
+    section = f"""<h2 id="vulnerabilities">Known vulnerabilities</h2>
   <div class="table-wrap">
     <table>
       <thead><tr><th scope="col">Image</th><th scope="col">AWX 24.6.1</th><th scope="col">Belfry (main)</th></tr></thead>

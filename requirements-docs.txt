@@ -1,0 +1,6 @@
+# Build dependencies of the guides at https://belfry-project.github.io/docs/
+# (mkdocs.yml, docs/). Pinned; Renovate keeps them current.
+mkdocs==1.6.1
+mkdocs-material==9.8.0
+mkdocs-macros-plugin==1.5.0
+pymdown-extensions==12.3

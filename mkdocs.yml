@@ -1,0 +1,140 @@
+---
+# The Belfry guides, published at https://belfry-project.github.io/docs/.
+# Built by .github/workflows/pages.yml next to the comparison page.
+#
+#   pip install -r requirements-docs.txt
+#   mkdocs serve          # preview on http://127.0.0.1:8000/docs/
+#   mkdocs build --strict # writes _site/docs
+
+site_name: Belfry documentation
+site_description: Install Belfry, migrate from AWX, and run it on Kubernetes.
+site_url: https://belfry-project.github.io/docs/
+site_dir: _site/docs
+repo_url: https://github.com/belfry-project/belfry-project.github.io
+repo_name: belfry-project.github.io
+edit_uri: edit/main/docs/
+copyright: >-
+  Belfry is an independent project, not affiliated with, endorsed by or sponsored
+  by Red Hat, Inc. or the Ansible project. AWX, Ansible and Ansible Tower are
+  trademarks of Red Hat, Inc.
+
+strict: true
+validation:
+  omitted_files: warn
+  absolute_links: info
+  unrecognized_links: warn
+  anchors: warn
+
+# Release-specific values, used in the pages as {{ release.version }} etc.
+# Keep every version, URL and tag that changes with a release here, and nowhere
+# else. Update them with each release (see the release procedure in
+# belfry-project/.github RELEASING.md).
+extra:
+  release:
+    # The Belfry release documented here: the tag of the GitHub releases and of
+    # the ghcr.io images of belfry, belfry-ee and belfry-operator.
+    version: "1.0.0"
+    # The operator manifest attached to the belfry-operator GitHub release.
+    operator_manifest: https://github.com/belfry-project/belfry-operator/releases/download/1.0.0/belfry-operator.yaml
+    # The Helm repository (GitHub Pages of belfry-project/helm-charts), the
+    # name used for it in the commands, the chart and its version.
+    helm_repo: https://belfry-project.github.io/helm-charts
+    helm_repo_name: belfry
+    helm_chart: belfry-operator
+    chart_version: "1.0.0"
+    # The ansible-core minor version in belfry-ee.
+    ansible_core: "2.22"
+  # The last AWX release, which the migration guide starts from.
+  awx:
+    version: 24.6.1
+    operator_version: 2.19.1
+    ansible_core: "2.15"
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/belfry-project
+      name: Belfry on GitHub
+
+theme:
+  name: material
+  logo: assets/belfry.svg
+  favicon: assets/belfry.png
+  language: en
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - content.code.copy
+    - content.action.edit
+    - content.tabs.link
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - navigation.indexes
+    - search.highlight
+    - search.suggest
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+
+extra_css:
+  - stylesheets/belfry.css
+
+plugins:
+  - search
+  - macros:
+      on_undefined: strict
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+nav:
+  - Introduction: index.md
+  - Getting started:
+      - Installing on Kubernetes: install.md
+      - Migrating from AWX: migrate.md
+  - Operating Belfry:
+      - Upgrading Belfry: upgrade.md
+      - Backup and restore: backup-restore.md
+      - Execution environments: execution-environments.md
+  - Trust and support:
+      - Verifying images: verify-images.md
+      - Security: security.md
+      - Releases and support: releases.md
+  - FAQ: faq.md
+  - Contributing: contributing.md
+  - Reference:
+      - Belfry manual (API and contributor guide): https://belfry-project.github.io/docs/belfry/
+      - Operator reference: https://belfry-project.github.io/docs/operator/
+      - Belfry vs AWX: https://belfry-project.github.io/
