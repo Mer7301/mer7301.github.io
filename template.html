@@ -49,6 +49,7 @@
   ul.changes p { margin: 0; color: var(--muted); }
   ul.changes p.links { margin-top: 8px; font-size: 0.9rem; display: flex; flex-wrap: wrap; gap: 4px 12px; }
   .note { color: var(--muted); font-size: 0.9rem; }
+  .detail { display: block; color: var(--muted); font-size: 0.82rem; font-weight: 400; margin-top: 2px; overflow-wrap: anywhere; }
   footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.88rem; }
 </style>
 </head>
@@ -60,6 +61,7 @@
   <div class="stats">
     <div class="stat"><div class="value">{{ eol_upstream }}</div><div class="label">end-of-life components in AWX 24.6.1</div></div>
     <div class="stat"><div class="value">{{ eol_belfry }}</div><div class="label">end-of-life components in Belfry</div></div>
+    {{ vulnerability_stats }}
     <div class="stat"><div class="value">{{ upstream_commits }}</div><div class="label">upstream commits since AWX 24.6.1 that were never released, included in Belfry</div></div>
     <div class="stat"><div class="value">{{ belfry_pulls }}</div><div class="label">merged Belfry pull requests, with {{ belfry_commits }} commits across {{ belfry_repos }} repositories</div></div>
   </div>
@@ -74,6 +76,8 @@
     </table>
   </div>
   <p class="note">Versions are read from the source files of each project. Support status comes from <a href="https://endoflife.date">endoflife.date</a>. The AWX 24.6.1 execution environment column uses awx-ee commit 00fe06c, the last commit before the release, because awx-ee has no release tags. It does not set a Python version, so the Python of its CentOS Stream 9 base image applies.</p>
+
+{{ vulnerabilities }}
 
   <h2>Changes</h2>
 {{ changes }}

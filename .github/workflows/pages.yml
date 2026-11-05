@@ -19,8 +19,12 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+env:
+  # renovate: datasource=github-releases depName=aquasecurity/trivy
+  TRIVY_VERSION: v0.76.2
+
 jobs:
-  build:
+  scan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -28,6 +32,37 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      - name: Install Trivy
+        run: |
+          curl -sSL "https://github.com/aquasecurity/trivy/releases/download/${TRIVY_VERSION}/trivy_${TRIVY_VERSION#v}_Linux-64bit.tar.gz" | tar xz -C /usr/local/bin trivy
+          trivy --version
+
+      - name: Scan the AWX and Belfry images
+        run: python scan.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scan-summary
+          path: scan-summary.json
+          retention-days: 7
+
+  build:
+    needs: scan
+    # Publish the page even if the scan failed; it then has no vulnerability section
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: scan-summary
 
       - name: Build the comparison page
         env:

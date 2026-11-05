@@ -229,6 +229,49 @@ def belfry_activity():
     return upstream, commits, pulls, len(BELFRY_REPOS)
 
 
+def vulnerability_section():
+    """Render the vulnerability comparison from scan-summary.json, or nothing if no scan ran."""
+    path = os.path.join(os.path.dirname(__file__), 'scan-summary.json')
+    if not os.path.exists(path):
+        return '', None
+    with open(path, encoding='utf-8') as f:
+        summary = json.load(f)
+
+    def cell(result):
+        counts, fixable = result['counts'], result['fixable']
+        serious = counts['CRITICAL'] + counts['HIGH']
+        serious_fixable = fixable['CRITICAL'] + fixable['HIGH']
+        return (
+            f'<td><span class="version">{serious:,}</span>'
+            f'<span class="detail">{counts["CRITICAL"]:,} critical, {counts["HIGH"]:,} high; '
+            f'{serious_fixable:,} with a fix available</span></td>'
+        )
+
+    rows = []
+    totals = [0, 0]
+    for item in summary['images']:
+        for side, key in enumerate(('awx', 'belfry')):
+            totals[side] += item[key]['counts']['CRITICAL'] + item[key]['counts']['HIGH']
+        rows.append(
+            f'<tr><th scope="row">{html.escape(item["component"])}<span class="detail">{html.escape(item["awx"]["image"])}<br>'
+            f'{html.escape(item["belfry"]["image"])}</span></th>{cell(item["awx"])}{cell(item["belfry"])}</tr>'
+        )
+    section = f"""<h2>Known vulnerabilities</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th scope="col">Image</th><th scope="col">AWX 24.6.1</th><th scope="col">Belfry (main)</th></tr></thead>
+      <tbody>
+{chr(10).join(rows)}
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Critical and high vulnerabilities found by <a href="https://trivy.dev">Trivy</a> {html.escape(summary['trivy'])}
+  (vulnerability database of {html.escape(summary['database'])}), scanned on {html.escape(summary['scanned'])}, for linux/amd64.
+  Each vulnerability is counted once per affected package. A finding does not always mean the software can be attacked through it,
+  but every one with a fix available can be removed by updating. Run <code>trivy image &lt;image&gt;</code> to reproduce.</p>"""
+    return section, totals
+
+
 def render():
     rows_html = []
     current_group = None
@@ -262,11 +305,20 @@ def render():
         sections.append(f'<section><h3>{html.escape(category["title"])}</h3><ul class="changes">{"".join(entries)}</ul></section>')
 
     upstream_commits, belfry_commits, belfry_pulls, belfry_repos = belfry_activity()
+    vulnerabilities, vulnerability_totals = vulnerability_section()
+    vulnerability_stats = ''
+    if vulnerability_totals:
+        vulnerability_stats = (
+            f'<div class="stat"><div class="value">{vulnerability_totals[0]:,} → {vulnerability_totals[1]:,}</div>'
+            '<div class="label">critical and high vulnerabilities, AWX 24.6.1 → Belfry, across the three images</div></div>'
+        )
     with open(os.path.join(os.path.dirname(__file__), 'template.html'), encoding='utf-8') as f:
         template = f.read()
     return (
         template.replace('{{ rows }}', '\n'.join(rows_html))
         .replace('{{ changes }}', '\n'.join(sections))
+        .replace('{{ vulnerabilities }}', vulnerabilities)
+        .replace('{{ vulnerability_stats }}', vulnerability_stats)
         .replace('{{ eol_upstream }}', str(counts['eol'][0]))
         .replace('{{ eol_belfry }}', str(counts['eol'][1]))
         .replace('{{ upstream_commits }}', f'{upstream_commits:,}')
