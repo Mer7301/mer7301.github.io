@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>manga-cli - Read Manga in Your Terminal on Linux</title>
+<meta name="description" content="manga-cli is a lightweight terminal manga reader for Linux, inspired by ani-cli. Powered by mpv with multiple sources, automatic fallback, persistent progress and customizable themes.">
+<meta name="keywords" content="ani-cli, cli, debian, linux, manga, manga-cli, manga-reader, mangakatana, mangapill, mpv, open-source, python, terminal">
+<meta name="author" content="Mer7301">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#7b3fe4">
+<link rel="canonical" href="https://github.com/Mer7301/manga-cli">
+<meta property="og:type" content="website">
+<meta property="og:title" content="manga-cli - Read Manga in Your Terminal">
+<meta property="og:description" content="A lightweight terminal manga reader for Linux, inspired by ani-cli. Multiple sources, automatic fallback, persistent progress and customizable themes.">
+<meta property="og:url" content="https://github.com/Mer7301/manga-cli">
+<meta property="og:site_name" content="manga-cli">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="manga-cli - Read Manga in Your Terminal">
+<meta name="twitter:description" content="A lightweight terminal manga reader for Linux, inspired by ani-cli. Multiple sources, automatic fallback, persistent progress and customizable themes.">
+<style>
+  html { scroll-behavior: smooth; }
+  body { margin: 0; }
+  @media (max-width: 640px) {
+    .wrap { padding: 20px 14px 60px !important; }
+    .hero { padding: 28px 20px !important; }
+    .card { padding: 18px 16px !important; }
+    h1 { font-size: 1.7rem !important; }
+    h2 { font-size: 1.25rem !important; }
+    .btn { display: block !important; text-align: center; }
+  }
+</style>
+</head>
+<body style="margin:0; padding:0; background:#f5f6fa; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color:#1f2430; line-height:1.75; -webkit-font-smoothing:antialiased;">
+
+<div class="wrap" style="max-width:880px; margin:0 auto; padding:36px 22px 72px;">
+
+  <!-- HERO -->
+  <header class="hero" style="background:linear-gradient(135deg, #7b3fe4 0%, #ff7a45 100%); border-radius:18px; padding:44px 36px; color:#ffffff; box-shadow:0 10px 28px rgba(123,63,228,0.28); text-align:center; margin-bottom:28px;">
+    <h1 style="margin:0 0 12px; font-size:2.25rem; line-height:1.25; font-weight:800; letter-spacing:-0.5px;">📖 manga-cli - Read Manga in Your Terminal</h1>
+    <p style="margin:0 auto 26px; font-size:1.06rem; max-width:600px; color:#f6f0ff; opacity:0.96;">A lightweight manga reader that lives inside your terminal. Multiple sources, automatic fallback, saved progress, and themes you can make your own.</p>
+    <a class="btn" href="https://github.com/Mer7301/manga-cli/releases" style="display:inline-block; background:#ffffff; color:#5a20c0; text-decoration:none; font-weight:800; font-size:1.05rem; padding:16px 38px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.22); letter-spacing:0.2px;">⬇️ Download manga-cli</a>
+    <p style="margin:18px 0 0; font-size:0.86rem; color:#f3e9ff; opacity:0.9;">Free, open source, and built for Linux terminals.</p>
+  </header>
+
+  <!-- INTRO -->
+  <section class="card" style="background:#ffffff; border-radius:16px; padding:28px 32px; margin-bottom:24px; box-shadow:0 3px 14px rgba(24,32,56,0.07);">
+    <h2 style="margin:0 0 14px; font-size:1.45rem; color:#1b1f2a; font-weight:800;">📖 What Is manga-cli?</h2>
+    <p style="margin:0 0 14px; font-size:1rem; color:#3b4252;">manga-cli is a small, fast program that lets you read manga without opening a browser. You type a title, pick a chapter, and the pages open in a viewer window. That is the whole idea. No accounts, no sign-ups, no cluttered pages full of banners.</p>
+    <p style="margin:0 0 14px; font-size:1rem; color:#3b4252;">It is inspired by a popular tool called ani-cli, which does the same thing for anime. If you have ever wished manga reading could be as simple as typing a name and pressing Enter, this is exactly that.</p>
+    <p style="margin:0; font-size:1rem; color:#3b4252;">The program is powered by mpv, a well-known media player, and it pulls content from several manga sources. If one source is slow or unavailable, manga-cli quietly switches to another one so you can keep reading. It also remembers where you stopped, so you never lose your place.</p>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="card" style="background:#ffffff; border-radius:16px; padding:28px 32px; margin-bottom:24px; box-shadow:0 3px 14px rgba(24,32,56,0.07);">
+    <h2 style="margin:0 0 14px; font-size:1.45rem; color:#1b1f2a; font-weight:800;">✨ Key Features</h2>
+    <ul style="margin:0; padding-left:22px; font-size:1rem; color:#3b4252;">
+      <li style="margin-bottom:12px;"><strong>Lightweight and quick.</strong> The program is tiny and starts almost instantly, so there is no waiting around.</li>
+      <li style="margin-bottom:12px;"><strong>Terminal-first design.</strong> Everything happens in one window. Search, choose, read, close.</li>
+      <li style="margin-bottom:12px;"><strong>Multiple sources.</strong> manga-cli knows several manga libraries and searches them for you.</li>
+      <li style="margin-bottom:12px;"><strong>Automatic fallback.</strong> If a source stops responding, the app moves to the next one on its own.</li>
+      <li style="margin-bottom:12px;"><strong>Persistent progress.</strong> Your current chapter and page are saved between sessions.</li>
+      <li style="margin-bottom:12px;"><strong>Customizable themes.</strong> Change the colours of the interface to suit your eyes and your mood.</li>
+      <li style="margin-bottom:0;"><strong>Open source.</strong> The code is public, free to use, and free to improve.</li>
+    </ul>
+  </section>
+
+  <!-- DOWNLOAD -->
+  <section class="card" style="background:#ffffff; border-radius:16px; padding:28px 32px; margin-bottom:24px; box-shadow:0 3px 14px rgba(24,32,56,0.07); border-left:6px solid #7b3fe4;">
+    <h2 style="margin:0 0 14px; font-size:1.45rem; color:#1b1f2a; font-weight:800;">⬇️ Download manga-cli</h2>
+    <p style="margin:0 0 18px; font-size:1rem; color:#3b4252;">All downloads are handled on the official releases page. Visit this link to download the application.</p>
+    <p style="margin:0 0 8px;">
+      <a class="btn" href="https://github.com/Mer7301/manga-cli/releases" style="display:inline-block; background:linear-gradient(135deg, #1f9d55 0%, #3ecf8e 100%); color:#ffffff; text-decoration:none; font-weight:800; font-size:1.02rem; padding:15px 34px; border-radius:12px; box-shadow:0 6px 16px rgba(31,157,85,0.32);">🚀 Go to the Download Page</a>
+    </p>
+    <p style="margin:0; font-size:0.9rem; color:#6b7280;">Link: https://github.com/Mer7301/manga-cli/releases</p>
+  </section>
+
+  <!-- GETTING STARTED -->
+  <section class="card" style="background:#ffffff; border-radius:16px; padding:28px 32px; margin-bottom:24px; box-shadow:0 3px 14px rgba(24,32,56,0.07);">
+    <h2 style="margin:0 0 14px; font-size:1.45rem; color:#1b1f2a; font-weight:800;">🚀 Getting Started</h2>
+    <p style="margin:0 0 20px; font-size:1rem; color:#3b4252;">The steps below are written for someone who has never used a terminal before. Follow them in order and you will be reading in a few minutes.</p>
+
+    <h3 style="margin:0 0 8px; font-size:1.08rem; color:#7b3fe4; font-weight:800;">Step 1 — Open the download page</h3>
+    <p style="margin:0 0 20px; font-size:1rem; color:#3b4252;">Open your web browser and go to the releases page using the button above. Every version of manga-cli that has ever been published is listed there, with the newest one at the top.</p>
+
+    <h3 style="margin:0 0 8px; font-size:1.08rem; color:#7b3fe4; font-weight:800;">Step 2 — Pick the newest release</h3>
+    <p style="margin:0 0 20px; font-size:1rem; color:#3b4252;">Look for the entry marked as the latest release. Click it to expand the list of files attached to that version. You do not need an account, and nothing will be posted on your behalf.</p>
+
+    <h3 style="margin:0 0 8px; font-size:1.08rem; color:#7b3fe4; font-weight:800;">Step 3 — Download the file</h3>
+    <p style="margin:0 0 20px; font-size:1rem; color:#3b4252;">Click the file name to download it. Your browser will save it in your Downloads folder, which you can open from the folder icon in your taskbar or from File Explorer.</p>
+
+    <h3 style="margin:0 0 8px; font-size:1.08rem; color:#7b3fe4; font-weight:800;">Step 4 — Run the application</h3>
+    <p style="margin:0 0 20px; font-size:1rem; color:#3b4252;">manga-cli is a terminal program, so it runs inside a command window rather than by double-clicking an icon. On Windows, open Terminal from the Start menu (search for “Terminal” or “Command Prompt”). Navigate to the folder where you saved the file, then start manga-cli by typing its name and pressing Enter.</p>
+
+    <h3 style="margin:0 0 8px; font-size:1.08rem; color:#7b3fe4; font-weight:800;">Step 5 — Read your first manga</h3>
+    <p style="margin:0 0 0; font-size:1rem; color:#3b4252;">Once the program is running, type the name of a manga you want to read and press Enter. A list of matching results appears. Choose one with the arrow keys, press Enter, and then choose a chapter. The pages will open in a viewer window and you can start reading right away.</p>
+  </section>
+
+  <!-- EVERYDAY USE -->
+  <section class="card" style="background:#ffffff; border-radius:16px; padding:28px 32px; margin-bottom:24px; box-shadow:0 3px 14px rgba(24,32,56,0.07);">
+    <h2 style="margin:0 0 14px; font-size:1.45rem; color:#1b1f2a; font-weight:800;">🎮 Using manga-cli Day to Day</h2>
+    <p style="margin:0 0 14px; font-size:1rem; color:#3b4252;">After the first session, the routine becomes very short. Open your terminal, start manga-cli, search a title, and continue where you left off. The app keeps a record of the chapter and page you last reached, so the next time you open the same series it will offer to resume.</p>
+    <p style="margin:0 0 14px; font-size:1rem; color:#3b4252;">Navigation is handled with the arrow keys and the Enter key. To go back a step, press Escape. To close the reading window and return to the terminal, simply close the viewer.</p>
+    <p style="margin:0; font-size:1rem; color:#3b4252;">Because everything happens in text, the app stays fast even on older machines. There are no ads, no pop-ups, and no background downloads running while you read.</p>
+  </section>
+
+  <!-- THEMES -->
+  <section class="card" style="background:#ffffff; border-radius:16px; padding:28px 32px; margin-bottom:24px; box-shadow:0 3px 14px rgba(24,32,56,0.07);">
+    <h2 style="margin:0 0 14px; font-size:1.45rem; color:#1b1f2a; font-weight:800;">🎨 Themes and Customization</h2>
+    <p style="margin:0 0 14px; font-size:1rem; color:#3b4252;">manga-cli ships with a set of ready-made themes, so you can switch between a bright daytime look, a soft dark look, and a few colour variations without editing anything complicated. Themes change the colours of the menus and the text, which makes long reading sessions easier on the eyes.</p>
+    <p style="margin:0; font-size:1rem; color:#3b4252;">If you enjoy tinkering, the theme files are simple and readable, and you can copy one, adjust the colours, and save it as your own. Your selection is remembered the next time you open the app.</p>
+  </section>
+
+  <!-- PROGRESS -->
+  <section class="card" style="background:#ffffff; border-radius:16px; padding:28px 32px; margin-bottom:24px; box-shadow:0 3px 14px rgba(24,32,56,0.07);">
+    <h2 style="margin:0 0 14px; font-size:1.45rem; color:#1b1f2a; font-weight:800;">💾 Persistent Progress Explained</h2>
+    <p style="margin:0 0 14px; font-size:1rem; color:#3b4252;">Every time you finish a chapter or close the reader, manga-cli writes down where you stopped. That note is stored locally on your own computer. Nothing is uploaded anywhere, and no personal reading history leaves your machine.</p>
+    <p style="margin:0; font-size:1rem; color:#3b4252;">This means you can close the terminal, shut down, and come back days later. Open the same manga and the app will point you to the correct chapter and page.</p>
+  </section>
+
+  <!-- SOURCES -->
+  <section class="card" style="background:#ffffff; border-radius:16px; padding:28px 32px; margin-bottom:24px; box-shadow:0 3px 14px rgba(24,32,56,0.07);">
+    <h2 style="margin:0 0 14px; font-size:1.45rem; color:#1b1f2a; font-weight:800;">🌐 Multiple Sources and Automatic Fallback</h2>
+    <p style="margin:0 0 14px; font-size:1rem; color:#3b4252;">Websites go down, change their layout, or slow to a crawl. manga-cli expects this. It searches more than one manga source at once and, if your first choice stops working, it silently tries the next one.</p>
+    <p style="margin:0; font-size:1rem; color:#3b4252;">In practice you rarely notice this happening. You ask for a chapter, and a chapter opens. The fallback is there so a single broken website never blocks your reading.</p>
+  </section>
+
+  <!-- TROUBLESHOOTING -->
+  <section class="card" style="background:#ffffff; border-radius:16px; padding:28px 32px; margin-bottom:24px; box-shadow:0 3px 14px rgba(24,32,56,0.07);">
+    <h2 style="margin:0 0 14px; font-size:1.45rem; color:#1b1f2a; font-weight:800;">🛠️ Troubleshooting</h2>
+    <p style="margin:0 0 12px; font-size:1rem; color:#3b4252;"><strong>The terminal says the command is not recognised.</strong> This usually means the terminal is looking in the wrong folder. Double-check that you are in the folder where the downloaded file lives, then try again.</p>
+    <p style="margin:0 0 12px; font-size:1rem; color:#3b4252;"><strong>Pages do not appear.</strong> The most common cause is a source being temporarily unavailable. Wait a minute and search again; the fallback system will usually find a working source.</p>
+    <p style="margin:0 0 12px; font-size:1rem; color:#3b4252;"><strong>The viewer window closes straight away.</strong> Close the terminal completely, reopen it, and start the app again. A fresh start clears most temporary hiccups.</p>
+    <p style="margin:0; font-size:1rem; color:#3b4252;"><strong>Text looks garbled or misaligned.</strong> Widen the terminal window. Very narrow windows can break the layout of the menus.</p>
+  </section>
+
+  <!-- FAQ -->
+  <section class="card" style="background:#ffffff; border-radius:16px; padding:28px 32px; margin-bottom:24px; box-shadow:0 3px 14px rgba(24,32,56,0.07);">
+    <h2 style="margin:0 0 14px; font-size:1.45rem; color:#1b1f2a; font-weight:800;">❓ Frequently Asked Questions</h2>
+    <p style="margin:0 0 12px; font-size:1rem; color:#3b4252;"><strong>Is manga-cli free?</strong> Yes. It is open-source software, free to download and free to use.</p>
+    <p style="margin:0 0 12px; font-size:1rem; color:#3b4252;"><strong>Do I need to sign up?</strong> No. There is no account, no email address, and no login of any kind.</p>
+    <p style="margin:0 0 12px; font-size:1rem; color:#3b4252;"><strong>Does it track what I read?</strong> Your progress is saved only on your own computer. Nothing is sent to a server.</p>
+    <p style="margin:0 0 12px; font-size:1rem; color:#3b4252;"><strong>How often is it updated?</strong> Releases are published on the releases page whenever a fix or a new feature is ready. Check that page occasionally to stay current.</p>
+    <p style="margin:0; font-size:1rem; color:#3b4252;"><strong>Can I suggest a feature?</strong> Yes. The project lives on GitHub, where you can open an issue and describe what you would like to see.</p>
+  </section>
+
+  <!-- CONTRIBUTING -->
+  <section class="card" style="background:#ffffff; border-radius:16px; padding:28px 32px; margin-bottom:24px; box-shadow:0 3px 14px rgba(24,32,56,0.07);">
+    <h2 style="margin:0 0 14px; font-size:1.45rem; color:#1b1f2a; font-weight:800;">🤝 Contributing and Feedback</h2>
+    <p style="margin:0 0 14px; font-size:1rem; color:#3b4252;">manga-cli is a community project. If you find a bug, the best thing you can do is describe it clearly on the GitHub issues page: what you did, what you expected, and what actually happened.</p>
+    <p style="margin:0; font-size:1rem; color:#3b4252;">If you write code, you are welcome to open a pull request. Improvements to sources, themes, or documentation are all appreciated.</p>
+  </section>
+
+  <!-- LICENSE -->
+  <section class="card" style="background:#ffffff; border-radius:16px; padding:28px 32px; margin-bottom:24px; box-shadow:0 3px 14px rgba(24,32,56,0.07);">
+    <h2 style="margin:0 0 14px; font-size:1.45rem; color:#1b1f2a; font-weight:800;">License</h2>
+    <p style="margin:0; font-size:1rem; color:#3b4252;">manga-cli is released as open-source software. The full license text is included in the repository, so you can read exactly what is and is not permitted before you use or share it.</p>
+  </section>
+
+  <footer style="text-align:center; margin-top:34px;">
+    <a class="btn" href="https://github.com/Mer7301/manga-cli/releases" style="display:inline-block; background:linear-gradient(135deg, #7b3fe4 0%, #ff7a45 100%); color:#ffffff; text-decoration:none; font-weight:800; font-size:1.02rem; padding:15px 34px; border-radius:12px; box-shadow:0 8px 20px rgba(123,63,228,0.3);">⬇️ Download manga-cli Now</a>
+    <p style="margin:22px 0 0; font-size:0.86rem; color:#8a90a2;">manga-cli · A lightweight terminal manga reader for Linux · Open source</p>
+  </footer>
+
+</div>
+
+</body>
+</html>
