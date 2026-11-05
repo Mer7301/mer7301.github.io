@@ -1,0 +1,260 @@
+#!/usr/bin/env python3
+"""Build the Belfry vs AWX comparison page.
+
+Component versions are read from the source files of the last AWX release and
+of Belfry's main branches, and support status comes from endoflife.date. The
+curated list of changes comes from changes.yml. The page is written to
+_site/index.html.
+"""
+
+import datetime
+import html
+import json
+import os
+import re
+import urllib.request
+
+import yaml
+
+# Last AWX releases (July 2024). awx-ee has no release tags; the 24.6.1 image
+# was built from its main branch, so the last commit before the release is used.
+UPSTREAM = {
+    'app': ('ansible/awx', '24.6.1'),
+    'ee': ('ansible/awx-ee', '00fe06c671'),
+    'operator': ('ansible/awx-operator', '2.19.1'),
+}
+BELFRY = {
+    'app': ('belfry-project/belfry', 'main'),
+    'ee': ('belfry-project/belfry-ee', 'main'),
+    'operator': ('belfry-project/belfry-operator', 'main'),
+}
+# Upstream commit that Belfry was created from; update after an upstream sync.
+BELFRY_UPSTREAM_BASE = 'a498310675'
+
+# Python version of the base image, used when the execution environment does not set one
+SYSTEM_PYTHON = {'9': '3.9', '10': '3.12'}
+
+TODAY = datetime.datetime.now(datetime.UTC).date()
+
+
+def fetch(url, accept=None):
+    headers = {'User-Agent': 'belfry-comparison-page'}
+    if accept:
+        headers['Accept'] = accept
+    if 'api.github.com' in url and os.environ.get('GITHUB_TOKEN'):
+        headers['Authorization'] = f'Bearer {os.environ["GITHUB_TOKEN"]}'
+    with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=30) as response:
+        return response.read().decode()
+
+
+def source(component, ref_map, path):
+    repo, ref = ref_map[component]
+    return fetch(f'https://raw.githubusercontent.com/{repo}/{ref}/{path}')
+
+
+def search(pattern, text, what):
+    match = re.search(pattern, text, re.MULTILINE)
+    if not match:
+        raise ValueError(f'Could not find {what} (pattern {pattern!r})')
+    return match.group(1)
+
+
+# Extractors: each returns the version string for one side (upstream or Belfry)
+
+
+def app_base_os(refs):
+    return 'CentOS Stream ' + search(
+        r'^FROM quay\.io/centos/centos:stream(\d+)', source('app', refs, 'tools/ansible/roles/dockerfile/templates/Dockerfile.j2'), 'base image'
+    )
+
+
+def app_python(refs):
+    return search(r'\bpython(3\.\d+)\b', source('app', refs, 'tools/ansible/roles/dockerfile/templates/Dockerfile.j2'), 'Python version')
+
+
+def app_node(refs):
+    dockerfile = source('app', refs, 'tools/ansible/roles/dockerfile/templates/Dockerfile.j2')
+    if 'nodejs:{{ nodejs_version }}' in dockerfile:
+        return source('app', refs, '.nvmrc').strip()
+    match = re.search(r'\bn (\d+)\.\d+\.\d+', dockerfile) or re.search(r'nodejs:(\d+)', dockerfile)
+    if not match:
+        raise ValueError('Could not find the Node.js version')
+    return match.group(1)
+
+
+def app_django(refs):
+    return search(r'^django==([\d.]+)', source('app', refs, 'requirements/requirements.txt'), 'Django version')
+
+
+def app_receptor(refs):
+    tag = search(r'^RECEPTOR_IMAGE \?= \S+?:([^\s@]+)', source('app', refs, 'Makefile'), 'receptor image')
+    return tag + (' (moving tag)' if not re.match(r'v?\d', tag) else '')
+
+
+def ee_base_os(refs):
+    return 'CentOS Stream ' + search(r'name: quay\.io/centos/centos:stream(\d+)', source('ee', refs, 'execution-environment.yml'), 'base image')
+
+
+def ee_python(refs):
+    spec = source('ee', refs, 'execution-environment.yml')
+    match = re.search(r'python_path: /usr/bin/python(3\.\d+)', spec)
+    if match:
+        return match.group(1)
+    stream = search(r'name: quay\.io/centos/centos:stream(\d+)', spec, 'base image')
+    return f'{SYSTEM_PYTHON[stream]} (system default)'
+
+
+def ee_ansible_core(refs):
+    requirement = search(r'package_pip: ansible-core(\S*)', source('ee', refs, 'execution-environment.yml'), 'ansible-core requirement')
+    minimum = re.search(r'>=(\d+)\.(\d+)', requirement)
+    if minimum:
+        return f'{minimum.group(1)}.{minimum.group(2)}'
+    below = re.search(r'<(\d+)\.(\d+)', requirement)
+    if below:
+        return f'{below.group(1)}.{int(below.group(2)) - 1}'
+    raise ValueError(f'Cannot interpret ansible-core requirement {requirement!r}')
+
+
+def operator_base(refs):
+    return search(r'^FROM quay\.io/operator-framework/ansible-operator:(v[\d.]+)', source('operator', refs, 'Dockerfile'), 'ansible-operator base image')
+
+
+def operator_kubernetes_core(refs):
+    requirements = yaml.safe_load(source('operator', refs, 'requirements.yml'))
+    for collection in requirements['collections']:
+        if collection['name'] == 'kubernetes.core':
+            return str(collection['version'])
+    raise ValueError('kubernetes.core not found in requirements.yml')
+
+
+def operator_redis(refs):
+    return search(r'^_redis_image_version: "?([\w.]+)"?', source('operator', refs, 'roles/installer/defaults/main.yml'), 'Redis version')
+
+
+def operator_postgres(refs):
+    return search(r'^_postgres_image: \S*postgresql-(\d+)-', source('operator', refs, 'roles/installer/defaults/main.yml'), 'PostgreSQL version')
+
+
+# Rows of the comparison table: (group, component, extractor, endoflife.date product)
+ROWS = [
+    ('Belfry / AWX application', 'Base operating system', app_base_os, 'centos-stream'),
+    ('Belfry / AWX application', 'Python', app_python, 'python'),
+    ('Belfry / AWX application', 'Node.js (UI build)', app_node, 'nodejs'),
+    ('Belfry / AWX application', 'Django', app_django, 'django'),
+    ('Belfry / AWX application', 'Receptor', app_receptor, None),
+    ('Execution environment', 'Base operating system', ee_base_os, 'centos-stream'),
+    ('Execution environment', 'Python', ee_python, 'python'),
+    ('Execution environment', 'ansible-core', ee_ansible_core, 'ansible-core'),
+    ('Kubernetes operator', 'ansible-operator base image', operator_base, None),
+    ('Kubernetes operator', 'kubernetes.core collection', operator_kubernetes_core, None),
+    ('Kubernetes operator', 'Redis (default)', operator_redis, 'redis'),
+    ('Kubernetes operator', 'PostgreSQL (default)', operator_postgres, 'postgresql'),
+]
+
+_eol_cache = {}
+
+
+def support_status(product, version):
+    """Return (state, text), where state is 'ok', 'soon', 'eol' or 'unknown'."""
+    if not product:
+        return 'unknown', ''
+    if product not in _eol_cache:
+        _eol_cache[product] = json.loads(fetch(f'https://endoflife.date/api/{product}.json'))
+    cycles = _eol_cache[product]
+    number = re.match(r'[\d.]+', version.replace('CentOS Stream ', ''))
+    if not number:
+        return 'unknown', ''
+    number = number.group(0).rstrip('.')
+    # Match the release cycle, e.g. 3.11 for Python 3.11, 8.10 for Redis 8.10.3, or the
+    # newest 7.x cycle for a floating "7" tag
+    parts = number.split('.')
+    candidates = [c for c in cycles if c['cycle'] in ('.'.join(parts[:2]), parts[0])]
+    if not candidates and len(parts) == 1:
+        # A floating major tag such as Redis "7" means the newest 7.x release
+        candidates = [c for c in cycles if c['cycle'].split('.')[0] == parts[0]][:1]
+    if not candidates:
+
+        def key(cycle):
+            return tuple(int(p) for p in re.findall(r'\d+', cycle)[:2])
+
+        newest = max(cycles, key=lambda c: key(c['cycle']))
+        if key('.'.join(parts[:2])) > key(newest['cycle']):
+            return 'ok', f'Newer than {newest["cycle"]}, the latest release with support data'
+        return 'unknown', 'No support data'
+    eol = candidates[0].get('eol')
+    if eol is False:
+        return 'ok', 'Supported'
+    if eol is True:
+        return 'eol', 'End of life'
+    eol_date = datetime.date.fromisoformat(eol)
+    if eol_date < TODAY:
+        return 'eol', f'End of life since {eol_date:%B %Y}'
+    if eol_date < TODAY + datetime.timedelta(days=183):
+        return 'soon', f'End of life in {eol_date:%B %Y}'
+    return 'ok', f'Supported until {eol_date:%B %Y}'
+
+
+def github_link(reference):
+    repo, number = reference.split('#')
+    return f'<a href="https://github.com/{repo}/pull/{number}">{html.escape(repo.split("/")[1])}#{number}</a>'
+
+
+def commit_counts():
+    def ahead(repo, base, head):
+        data = json.loads(fetch(f'https://api.github.com/repos/{repo}/compare/{base}...{head}'))
+        return data['ahead_by']
+
+    return ahead('ansible/awx', UPSTREAM['app'][1], BELFRY_UPSTREAM_BASE), ahead('belfry-project/belfry', BELFRY_UPSTREAM_BASE, 'main')
+
+
+def render():
+    rows_html = []
+    current_group = None
+    counts = {'eol': [0, 0], 'soon': [0, 0]}
+    for group, component, extractor, product in ROWS:
+        if group != current_group:
+            rows_html.append(f'<tr class="group"><th colspan="3" scope="colgroup">{html.escape(group)}</th></tr>')
+            current_group = group
+        cells = []
+        for side, refs in enumerate((UPSTREAM, BELFRY)):
+            version = extractor(refs)
+            state, text = support_status(product, version)
+            if state in counts:
+                counts[state][side] += 1
+            badge = f'<span class="badge {state}">{html.escape(text)}</span>' if text else ''
+            cells.append(f'<td><span class="version">{html.escape(version)}</span>{badge}</td>')
+        rows_html.append(f'<tr><th scope="row">{html.escape(component)}</th>{"".join(cells)}</tr>')
+
+    with open(os.path.join(os.path.dirname(__file__), 'changes.yml'), encoding='utf-8') as f:
+        data = yaml.safe_load(f)
+    sections = []
+    for category in data['categories']:
+        items = [c for c in data['changes'] if c['category'] == category['id']]
+        if not items:
+            continue
+        entries = []
+        for change in items:
+            links = ' '.join(github_link(link) for link in change.get('links', []))
+            links_html = f'<p class="links">{links}</p>' if links else ''
+            entries.append(f'<li><h4>{html.escape(change["title"])}</h4><p>{html.escape(change["description"])}</p>{links_html}</li>')
+        sections.append(f'<section><h3>{html.escape(category["title"])}</h3><ul class="changes">{"".join(entries)}</ul></section>')
+
+    upstream_commits, belfry_commits = commit_counts()
+    with open(os.path.join(os.path.dirname(__file__), 'template.html'), encoding='utf-8') as f:
+        template = f.read()
+    return (
+        template.replace('{{ rows }}', '\n'.join(rows_html))
+        .replace('{{ changes }}', '\n'.join(sections))
+        .replace('{{ eol_upstream }}', str(counts['eol'][0]))
+        .replace('{{ eol_belfry }}', str(counts['eol'][1]))
+        .replace('{{ upstream_commits }}', f'{upstream_commits:,}')
+        .replace('{{ belfry_commits }}', f'{belfry_commits:,}')
+        .replace('{{ generated }}', f'{TODAY:%d %B %Y}')
+    )
+
+
+if __name__ == '__main__':
+    os.makedirs('_site', exist_ok=True)
+    with open('_site/index.html', 'w', encoding='utf-8') as f:
+        f.write(render())
+    print('Wrote _site/index.html')

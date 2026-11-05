@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Belfry vs AWX</title>
+<meta name="description" content="What Belfry changes compared with the last AWX release: component versions, support status and fixes, with links to every change.">
+<style>
+  :root {
+    --bg: #f7f8fa; --surface: #ffffff; --text: #1b2333; --muted: #5b6475; --border: #e1e5ec;
+    --accent: #2f62d6; --group: #eef2f8;
+    --ok-bg: #e3f4ea; --ok-fg: #17663a; --soon-bg: #fdf1d8; --soon-fg: #8a5a00; --eol-bg: #fbe4e4; --eol-fg: #a12626;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1522; --surface: #172033; --text: #e7ecf5; --muted: #9aa6bd; --border: #26324a;
+      --accent: #7da2ff; --group: #1d2840;
+      --ok-bg: #143524; --ok-fg: #7fd9a3; --soon-bg: #3a2d10; --soon-fg: #f2c46a; --eol-bg: #3d1a1d; --eol-fg: #ff9b9b;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 960px; margin: 0 auto; padding: 40px 16px 64px; }
+  a { color: var(--accent); }
+  h1 { font-size: 2rem; margin: 0 0 8px; letter-spacing: -0.01em; }
+  h2 { font-size: 1.35rem; margin: 48px 0 12px; }
+  h3 { font-size: 1.1rem; margin: 28px 0 10px; }
+  h4 { font-size: 1rem; margin: 0 0 4px; }
+  .lead { color: var(--muted); font-size: 1.08rem; max-width: 46em; margin: 0; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 28px 0 0; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .stat .value { font-size: 1.9rem; font-weight: 650; font-variant-numeric: tabular-nums; }
+  .stat .label { color: var(--muted); font-size: 0.92rem; }
+  .table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; min-width: 560px; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  thead th { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+  tr.group th { background: var(--group); font-size: 0.92rem; }
+  tbody tr:last-child td, tbody tr:last-child th { border-bottom: 0; }
+  tbody th[scope="row"] { font-weight: 500; width: 30%; }
+  .version { display: block; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .badge { display: inline-block; margin-top: 4px; padding: 1px 8px; border-radius: 999px; font-size: 0.8rem; }
+  .badge.ok { background: var(--ok-bg); color: var(--ok-fg); }
+  .badge.soon { background: var(--soon-bg); color: var(--soon-fg); }
+  .badge.eol { background: var(--eol-bg); color: var(--eol-fg); }
+  .badge.unknown { background: var(--group); color: var(--muted); }
+  ul.changes { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  ul.changes li { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  ul.changes p { margin: 0; color: var(--muted); }
+  ul.changes p.links { margin-top: 8px; font-size: 0.9rem; display: flex; flex-wrap: wrap; gap: 4px 12px; }
+  .note { color: var(--muted); font-size: 0.9rem; }
+  footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.88rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Belfry vs AWX</h1>
+  <p class="lead">What Belfry changes compared with the last AWX release: AWX 24.6.1 and awx-operator 2.19.1, both from July 2024. Every change links to the pull request that made it.</p>
+
+  <div class="stats">
+    <div class="stat"><div class="value">{{ eol_upstream }}</div><div class="label">end-of-life components in AWX 24.6.1</div></div>
+    <div class="stat"><div class="value">{{ eol_belfry }}</div><div class="label">end-of-life components in Belfry</div></div>
+    <div class="stat"><div class="value">{{ upstream_commits }}</div><div class="label">upstream commits since AWX 24.6.1 that were never released, included in Belfry</div></div>
+    <div class="stat"><div class="value">{{ belfry_commits }}</div><div class="label">Belfry commits on top</div></div>
+  </div>
+
+  <h2>Component versions</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th scope="col">Component</th><th scope="col">AWX 24.6.1</th><th scope="col">Belfry (main)</th></tr></thead>
+      <tbody>
+{{ rows }}
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Versions are read from the source files of each project. Support status comes from <a href="https://endoflife.date">endoflife.date</a>. The AWX 24.6.1 execution environment column uses awx-ee commit 00fe06c, the last commit before the release, because awx-ee has no release tags. It does not set a Python version, so the Python of its CentOS Stream 9 base image applies.</p>
+
+  <h2>Changes</h2>
+{{ changes }}
+
+  <footer>
+    Generated on {{ generated }} from <a href="https://github.com/belfry-project/belfry-project.github.io">belfry-project.github.io</a>.
+    Belfry is an independent project. It is not affiliated with, endorsed by or sponsored by Red Hat, Inc. or the Ansible project. AWX, Ansible and Ansible Tower are trademarks of Red Hat, Inc.
+  </footer>
+</main>
+</body>
+</html>

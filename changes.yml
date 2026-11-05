@@ -1,0 +1,124 @@
+# Changes in Belfry compared with the last AWX release.
+#
+# Each change has a title, a short explanation for users, and links to the
+# pull requests that made it. Keep the explanation about the effect for users,
+# not about the implementation. Newest changes first within a category.
+
+categories:
+  - id: support
+    title: Supported software instead of end-of-life versions
+  - id: fixes
+    title: Fixes
+  - id: build
+    title: Builds and distribution
+  - id: independence
+    title: Independent of Red Hat infrastructure
+
+changes:
+  - category: support
+    title: Execution environment on CentOS Stream 10, Python 3.14 and ansible-core 2.22
+    description: >-
+      The AWX 24.6.1 execution environment runs ansible-core 2.15, end-of-life since
+      November 2024, on Python 3.9, end-of-life since October 2025. Upstream later
+      pinned ansible-core below 2.19, which now resolves to the end-of-life 2.18.
+      Belfry's execution environment uses current, supported versions.
+    links:
+      - belfry-project/belfry-ee#9
+      - belfry-project/belfry#18
+
+  - category: support
+    title: UI built with Node.js 24 instead of 16
+    description: >-
+      AWX 24.6.1 builds its UI with Node.js 16, end-of-life since September 2023, and
+      the development branch with Node.js 18, end-of-life since April 2025. Belfry
+      uses Node.js 24 (LTS, supported until April 2028), set in one place.
+    links:
+      - belfry-project/belfry#15
+
+  - category: support
+    title: Redis 8.10
+    description: >-
+      AWX uses the floating Redis 7 tag, licensed under RSALv2/SSPL. Belfry pins Redis
+      8.10.3, which can be used under the AGPLv3 open source license.
+    links:
+      - belfry-project/belfry-operator#11
+      - belfry-project/belfry#19
+
+  - category: support
+    title: Current Kubernetes tooling in the operator and Helm chart
+    description: >-
+      kubernetes.core 6.6, kustomize 5.8 and opm 1.74 in the operator, and Helm 4.3,
+      kustomize 5.8, yq 4.54 and chart-releaser 1.10 for the Helm chart, which was
+      built with Helm 3.8 from 2022.
+    links:
+      - belfry-project/belfry-operator#8
+      - belfry-project/helm-charts#7
+
+  - category: support
+    title: Upstream fixes since AWX 24.6.1 included
+    description: >-
+      Belfry is based on the AWX development branch, so it includes the upstream
+      fixes and dependency updates made since the last AWX release, which were never
+      released by the AWX project.
+
+  - category: fixes
+    title: Fact caching works with ansible-core 2.19 and newer
+    description: >-
+      ansible-core 2.19 changed how facts are cached, and AWX could not read the new
+      format: jobs did not see cached facts, and facts were cleared after every job.
+      This is why upstream could not move past ansible-core 2.18. Belfry reads and
+      writes both formats and stores facts without internal Ansible metadata.
+    links:
+      - belfry-project/belfry#18
+
+  - category: fixes
+    title: Helm chart works with the current operator
+    description: >-
+      The operator replaced kube-rbac-proxy with built-in metrics authentication, and
+      the upstream Helm chart generation failed against it. Belfry's chart is generated
+      from the current operator.
+    links:
+      - belfry-project/helm-charts#5
+
+  - category: build
+    title: All dependencies pinned, and updated through reviewed pull requests
+    description: >-
+      AWX builds install several dependencies from moving branches, so the same release
+      could produce different images. Belfry pins every dependency to an exact version
+      or commit. Renovate proposes updates as pull requests, which go through CI.
+    links:
+      - belfry-project/belfry#3
+      - belfry-project/belfry-ee#2
+
+  - category: build
+    title: Multi-architecture images on GitHub Container Registry
+    description: >-
+      All images are published to ghcr.io/belfry-project for amd64 and arm64, built
+      natively on both architectures.
+    links:
+      - belfry-project/belfry#11
+      - belfry-project/belfry#20
+      - belfry-project/belfry-ee#10
+      - belfry-project/belfry-operator#5
+      - belfry-project/belfry-operator#12
+
+  - category: build
+    title: Execution environment changes are tested before they are published
+    description: >-
+      Pull requests to the execution environment publish a test image, and the Belfry
+      test suite, including tests that run real jobs, can run against it before it
+      becomes the default.
+    links:
+      - belfry-project/belfry-ee#8
+      - belfry-project/belfry#16
+
+  - category: independence
+    title: Built, tested and published entirely on GitHub
+    description: >-
+      Belfry no longer depends on Quay, Ansible Galaxy, PyPI, SonarCloud, AWS or Red Hat's
+      internal build system (Konflux) to build or release. Everything runs on GitHub
+      Actions and is published to GitHub.
+    links:
+      - belfry-project/belfry#11
+      - belfry-project/belfry-operator#5
+      - belfry-project/belfry-ee#2
