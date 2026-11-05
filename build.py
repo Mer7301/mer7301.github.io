@@ -30,6 +30,16 @@ BELFRY = {
 }
 # Upstream commit that Belfry was created from; update after an upstream sync.
 BELFRY_UPSTREAM_BASE = 'a498310675'
+# Belfry repositories, with the upstream commit each was imported from (None for new repositories)
+BELFRY_REPOS = {
+    'belfry': BELFRY_UPSTREAM_BASE,
+    'belfry-ee': 'b8da008',
+    'belfry-operator': '76470a4',
+    'helm-charts': 'dfb09ef',
+    'belfry-ui': '96dcf0b',
+    '.github': None,
+    'belfry-project.github.io': None,
+}
 
 # Python version of the base image, used when the execution environment does not set one
 SYSTEM_PYTHON = {'9': '3.9', '10': '3.12'}
@@ -199,12 +209,24 @@ def github_link(reference):
     return f'<a href="https://github.com/{repo}/pull/{number}">{html.escape(repo.split("/")[1])}#{number}</a>'
 
 
-def commit_counts():
-    def ahead(repo, base, head):
-        data = json.loads(fetch(f'https://api.github.com/repos/{repo}/compare/{base}...{head}'))
-        return data['ahead_by']
+def github_api(path):
+    return json.loads(fetch(f'https://api.github.com/{path}'))
 
-    return ahead('ansible/awx', UPSTREAM['app'][1], BELFRY_UPSTREAM_BASE), ahead('belfry-project/belfry', BELFRY_UPSTREAM_BASE, 'main')
+
+def belfry_activity():
+    """Return (upstream commits included, Belfry commits, merged pull requests, repositories)."""
+    upstream = github_api(f'repos/ansible/awx/compare/{UPSTREAM["app"][1]}...{BELFRY_UPSTREAM_BASE}')['ahead_by']
+    commits = 0
+    for repo, base in BELFRY_REPOS.items():
+        if base:
+            commits += github_api(f'repos/belfry-project/{repo}/compare/{base}...HEAD')['ahead_by']
+        else:
+            page = 1
+            while batch := github_api(f'repos/belfry-project/{repo}/commits?per_page=100&page={page}'):
+                commits += len(batch)
+                page += 1
+    pulls = github_api('search/issues?q=org:belfry-project+is:pr+is:merged+-author:app/renovate+-author:app/dependabot')['total_count']
+    return upstream, commits, pulls, len(BELFRY_REPOS)
 
 
 def render():
@@ -239,7 +261,7 @@ def render():
             entries.append(f'<li><h4>{html.escape(change["title"])}</h4><p>{html.escape(change["description"])}</p>{links_html}</li>')
         sections.append(f'<section><h3>{html.escape(category["title"])}</h3><ul class="changes">{"".join(entries)}</ul></section>')
 
-    upstream_commits, belfry_commits = commit_counts()
+    upstream_commits, belfry_commits, belfry_pulls, belfry_repos = belfry_activity()
     with open(os.path.join(os.path.dirname(__file__), 'template.html'), encoding='utf-8') as f:
         template = f.read()
     return (
@@ -249,6 +271,8 @@ def render():
         .replace('{{ eol_belfry }}', str(counts['eol'][1]))
         .replace('{{ upstream_commits }}', f'{upstream_commits:,}')
         .replace('{{ belfry_commits }}', f'{belfry_commits:,}')
+        .replace('{{ belfry_pulls }}', f'{belfry_pulls:,}')
+        .replace('{{ belfry_repos }}', str(belfry_repos))
         .replace('{{ generated }}', f'{TODAY:%d %B %Y}')
     )
 
