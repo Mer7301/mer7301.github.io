@@ -5,6 +5,8 @@
 # not about the implementation. Newest changes first within a category.
 
 categories:
+  - id: upgrade
+    title: Upgrading from AWX
   - id: support
     title: Supported software instead of end-of-life versions
   - id: fixes
@@ -15,6 +17,21 @@ categories:
     title: Independent of Red Hat infrastructure
 
 changes:
+  - category: upgrade
+    title: Tested upgrade from AWX 24.6.1
+    description: >-
+      An existing AWX 24.6.1 installation is upgraded by replacing awx-operator 2.19.1
+      with belfry-operator on the same AWX resource. An automated test does this every
+      week on a fresh Kubernetes cluster: organizations, inventories, encrypted
+      credentials, projects, job templates, finished jobs with their output and cached
+      facts survive, and new jobs run in Belfry's execution environment with the
+      credentials created before the upgrade.
+    links:
+      - belfry-project/belfry-operator#14
+    urls:
+      - title: Latest test runs
+        url: https://github.com/belfry-project/belfry-operator/actions/workflows/upgrade-test.yml
+
   - category: support
     title: Execution environment on CentOS Stream 10, Python 3.14 and ansible-core 2.22
     description: >-
@@ -62,6 +79,16 @@ changes:
       released by the AWX project.
 
   - category: fixes
+    title: The operator can be installed as published
+    description: >-
+      awx-operator 2.19.1, the last AWX operator release, can no longer be installed as
+      published: its kube-rbac-proxy sidecar image (gcr.io/kubebuilder) no longer exists,
+      so users have to replace it by hand. belfry-operator serves metrics with built-in
+      authentication and needs no extra image.
+    links:
+      - belfry-project/belfry-operator#14
+
+  - category: fixes
     title: Fact caching works with ansible-core 2.19 and newer
     description: >-
       ansible-core 2.19 changed how facts are cached, and AWX could not read the new
@@ -101,6 +128,18 @@ changes:
       - belfry-project/belfry-ee#10
       - belfry-project/belfry-operator#5
       - belfry-project/belfry-operator#12
+
+  - category: build
+    title: Signed build provenance and SBOM for every image
+    description: >-
+      Every published image carries a signed attestation of the repository, commit and
+      workflow that built it, and a signed SBOM listing every package in it. Anyone can
+      verify them with "gh attestation verify oci://IMAGE --owner belfry-project". The
+      vulnerability comparison on this page is rescanned daily.
+    links:
+      - belfry-project/belfry#24
+      - belfry-project/belfry-ee#11
+      - belfry-project/belfry-operator#15
 
   - category: build
     title: Execution environment changes are tested before they are published

@@ -299,7 +299,10 @@ def render():
             continue
         entries = []
         for change in items:
-            links = ' '.join(github_link(link) for link in change.get('links', []))
+            links = ' '.join(
+                [github_link(link) for link in change.get('links', [])]
+                + [f'<a href="{html.escape(u["url"])}">{html.escape(u["title"])}</a>' for u in change.get('urls', [])]
+            )
             links_html = f'<p class="links">{links}</p>' if links else ''
             entries.append(f'<li><h4>{html.escape(change["title"])}</h4><p>{html.escape(change["description"])}</p>{links_html}</li>')
         sections.append(f'<section><h3>{html.escape(category["title"])}</h3><ul class="changes">{"".join(entries)}</ul></section>')
