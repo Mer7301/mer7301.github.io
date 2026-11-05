@@ -33,6 +33,16 @@ changes:
         url: https://github.com/belfry-project/belfry-operator/actions/workflows/upgrade-test.yml
 
   - category: support
+    title: Django REST framework 3.18
+    description: >-
+      AWX 24.6.1 uses Django REST framework 3.15.1, and the AWX development branch is
+      pinned to 3.15.2, which has three high severity vulnerabilities. Belfry uses
+      3.18.3, with the API behaving as before: for example, an organization is still
+      required when creating an inventory or a notification template.
+    links:
+      - belfry-project/belfry#28
+
+  - category: support
     title: Execution environment on CentOS Stream 10, Python 3.14 and ansible-core 2.22
     description: >-
       The AWX 24.6.1 execution environment runs ansible-core 2.15, end-of-life since
